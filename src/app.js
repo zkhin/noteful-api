@@ -16,20 +16,22 @@ app.use(morgan(morganOption))
 app.use(express.json())
 app.use(helmet())
 app.use(cors())
+
+//-----------Main Routing---------//
+app.get('/', (req, res) => {
+  return res.status(200).send('Hello, world!')
+})
+
+//-----------Error handling must be at end---------//
+
 app.use(function errorHandler(error, req, res, next) {
   let response
   if (NODE_ENV === 'production') {
     response = { error: { message: 'server error' } }
   } else {
     console.error(error)
-    response = {message: error.message, error}
+    response = { message: error.message, error }
   }
   res.status(500).json(response)
 })
-//-----------Main Routing---------//
-app.get('/', (req, res) => {
-  return res.status(200).send('Hello, world!')
-})
-
-
 module.exports = app
