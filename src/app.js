@@ -1,37 +1,38 @@
-require('dotenv').config()
-const express = require('express')
-const morgan = require('morgan')
-const cors = require('cors')
-const helmet = require('helmet')
-const { NODE_ENV } = require('./config')
+require('dotenv').config();
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
+const helmet = require('helmet');
+const { NODE_ENV } = require('./config');
+const foldersRouter = require('./folders/folders-router');
+const notesRouter = require('./notes/notes-router');
 
-const app = express()
+const app = express();
 
 const morganOption = (NODE_ENV === 'production')
   ? 'tiny'
-  : 'common';
+  : 'dev';
+app.use(morgan(morganOption));
+app.use(helmet());
+app.use(cors());
 
-//middleware setup
-app.use(morgan(morganOption))
-app.use(express.json())
-app.use(helmet())
-app.use(cors())
+app.use('/api/folders', foldersRouter);
+app.use('/api/notes', notesRouter);
 
-//-----------Main Routing---------//
-app.get('/', (req, res) => {
-  return res.status(200).send('Hello, world!')
-})
 
-//-----------Error handling must be at end---------//
+app.get('/', (req,res) => {
+  return res.send('Hello, world!');
+});
 
-app.use(function errorHandler(error, req, res, next) {
-  let response
+app.use(function errorHandler(error, req, res, next ){
+  let response;
   if (NODE_ENV === 'production') {
-    response = { error: { message: 'server error' } }
+    response = { error: { message : 'server error' } };
   } else {
-    console.error(error)
+    console.error(error);
     response = { message: error.message, error }
   }
-  res.status(500).json(response)
-})
-module.exports = app
+  res.status(500).json(response);
+});
+
+module.exports = app;
